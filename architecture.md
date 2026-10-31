@@ -1,4 +1,4 @@
-# pq-blockchain — Architecture
+# heimdall — Architecture
 
 > **Purpose:** System components, data models, interfaces, invariants,
 > and interactions. This is the *what* and *how* document. *Why* lives
@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-`pq-blockchain` is a single-process, single-writer, in-memory blockchain.
+`heimdall` is a single-process, single-writer, in-memory blockchain.
 There is no networking, no consensus, no persistence, and no signature
 scheme in the Week 1 baseline. The system is structured as a library
 (`src/transaction.rs`, `src/block.rs`, `src/blockchain.rs`) plus a small

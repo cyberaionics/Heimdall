@@ -2,3 +2,5 @@
 context.md
 *.pdf
 pq*
+Cargo.toml
+target/

@@ -8,7 +8,7 @@ pub struct Transaction {
     pub amount: u64
 }
 
-impl Transaction (
+impl Transaction {
     pub fn new(sender: String, receiver: String, amount: u64) -> Self {
         Self {
             sender,
@@ -18,9 +18,9 @@ impl Transaction (
     }
 
     pub fn canonical_bytes(&self) -> Vec<u8> {
-        format!("{}|{}|{}", self.sender, self.receiver, self.amount).info_bytes()
+        format!("{}|{}|{}", self.sender, self.receiver, self.amount).into_bytes()
     }
-)
+}
 
 impl std::fmt::Display for Transaction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result{

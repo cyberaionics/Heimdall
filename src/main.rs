@@ -13,7 +13,7 @@ fn main() {
     println!("Added Block #1 (2 Transactions).");
 
     blkc.add_block(vec![Transaction::new("Carol".to_string(), "Dave".to_string(), 10)]);
-    println!("Added Block #2 (2 transactions).")
+    println!("Added Block #2 (2 transactions).");
 
     println!("{}",blkc);
     match blkc.is_valid() {
@@ -23,7 +23,7 @@ fn main() {
     println!("\n--- Tamper Detection Demo ---");
     let mut tampered = blkc.clone();
     tampered.chain[1].transactions[0].amount = 999;
-    match tampered is_valid(){
+    match tampered.is_valid(){
         Ok(()) => println!("(unexpected) tampered chain validated OK"), Err(e) => println!("Tampered Chain correctly rejected: {}", e)
     }
 }

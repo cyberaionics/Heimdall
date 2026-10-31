@@ -70,7 +70,7 @@ impl std::fmt::Display for Blockchain {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Blockchain ({} blocks):", self.chain.len())?;
         for block in &self.chain {
-            write!(f, "{}", block);
+            let _ = write!(f, "{}", block);
         }
         Ok(())
     }
@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn tampered_genesis_is_detected() {
         let blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
-        let mut tampered - blkc.clone();
+        let mut tampered = blkc.clone();
         tampered.chain[0].timestamp = 1;
         let result = tampered.is_valid();
         assert!(result.is_err());

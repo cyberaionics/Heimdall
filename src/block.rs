@@ -1,20 +1,20 @@
 use crate::transaction::Transaction;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, SHA256};
+use sha2::{Digest, Sha256};
 
 
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 
 pub struct Block {
-    pub index: u64, pub timestamp: Vec<Transaction>, pub previous_hash: String, pub hash: String
+    pub index: u64, pub timestamp: i64, pub transactions: Vec<Transaction>, pub previous_hash: String, pub hash: String
 }
 
 
 impl Block {
     pub fn new(index: u64, timestamp: i64, transactions: Vec<Transaction>, previous_hash: String) -> Self {
         Self {
-            index, timestamp, transactions, previous_hash, hash: String::new();
+            index, timestamp, transactions, previous_hash, hash: String::new()
         }
     }
 
@@ -30,7 +30,7 @@ impl Block {
     }
 
     pub fn calculate_hash(&self) -> String {
-        let mut hasher = SHA256::new();
+        let mut hasher = Sha256::new();
         hasher.update(self.canonical_hash_input());
         hex_encode(&hasher.finalize())
     }
@@ -58,7 +58,7 @@ impl std::fmt::Display for Block {
         if self.transactions.is_empty() {
             writeln!(f, " (no transactions)")?;
         } else {
-            for tx in transactions {
+            for tx in &self.transactions {
                 writeln!(f, " - {}", tx)?;
             }
         }
@@ -96,7 +96,7 @@ mod tests {
         let original_hash = block.hash.clone();
         block.transactions.push(sample_tx());
         block.recompute_hash();
-        assert_ne!(block.hash, original.hash, "adding a transaction must change the block hash");
+        assert_ne!(block.hash, original_hash, "adding a transaction must change the block hash");
     }
     #[test]
     fn hash_excludes_the_hash_field_itself() {
@@ -108,7 +108,7 @@ mod tests {
     }
     #[test]
     fn hash_changes_when_previous_hash_changes() {
-        let mut a = Block::new(1, 100, vec![], "aaa".to_string());
+        let a = Block::new(1, 100, vec![], "aaa".to_string());
         let mut b = Block::new(1, 100, vec![], "bbb".to_string());
         b.recompute_hash();
         assert_ne!(a.hash, b.hash, "different previous_hash values must produce different block hashes");
