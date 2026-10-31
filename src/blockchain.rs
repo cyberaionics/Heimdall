@@ -36,20 +36,20 @@ impl Blockchain {
 
     pub fn is_valid(&self) -> Result<(), String> {
         if self.chain.is_empty() {
-            return Err("Chain is empty - genesis block missing".to_string());
+            return Err("chain is empty — genesis block missing".to_string());
         }
         let genesis = &self.chain[0];
         if genesis.hash != genesis.calculate_hash() {
-            return Err(format!("genesis block hash mismatch: Stored={}, computed={}", genesis.hash, genesis.calculate_hash()));
+            return Err(format!("genesis block hash mismatch: stored={}, computed={}", genesis.hash, genesis.calculate_hash()));
         }
         for i in 1..self.chain.len() {
             let prev = &self.chain[i-1];
             let curr = &self.chain[i];
             if curr.previous_hash != prev.hash {
-                return Err(format!("Broken link at Index {}: Previous Hash = {}, but block[{}].hash = {}", curr.index, curr.previous_hash, prev.index, prev.hash));
+                return Err(format!("broken link at index {}: previous_hash={}, but block[{}].hash={}", curr.index, curr.previous_hash, prev.index, prev.hash));
             }
             if curr.hash != curr.calculate_hash() {
-                return Err(format!("hash mismatch at index {}: stored = {}, computed={}", curr.index, curr.hash, curr.calculate_hash()));
+                return Err(format!("hash mismatch at index {}: stored={}, computed={}", curr.index, curr.hash, curr.calculate_hash()));
             }
         }
         Ok(())
@@ -120,16 +120,17 @@ mod tests {
         let result = blkc.is_valid();
         assert!(result.is_err(), "tampered transaction must be detected by validation");
         let err = result.unwrap_err();
-        assert!(err.contains("Hash Mismatch at index 1"), "error message must point at the tampered block, got: {}", err);
+        assert!(err.contains("hash mismatch at index 1"), "error message must point at the tampered block, got: {}", err);
     }
     #[test]
     fn tampered_block_hash_is_detected() {
         let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
         blkc.add_block(sample_txs());
+        blkc.chain[1].hash = "deadbeef".repeat(8);
         let result = blkc.is_valid();
         assert!(result.is_err());
         let err = result.unwrap_err();
-        assert!(err.contains("Hash mismatch at index 1"));
+        assert!(err.contains("hash mismatch at index 1"));
     }
     #[test]
     fn broken_link_is_detected() {
