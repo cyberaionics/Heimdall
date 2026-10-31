@@ -2,5 +2,5 @@
 context.md
 *.pdf
 pq*
-Cargo.toml
+Cargo.lock
 target/

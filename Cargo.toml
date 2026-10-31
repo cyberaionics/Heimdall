@@ -1,0 +1,32 @@
+[package]
+name = "pq-blockchain"
+version = "1.0.0"
+edition = "2026"
+authors = ["pq-blockchain project"]
+description = "Minimal Rust blockchain baseline for post-quantum cryptography integration research"
+license = "MIT"
+readme = "README.md"
+
+# Week 1 dependencies. These are the minimum needed to build a classical
+# baseline with deterministic hashing. The pluggable signature abstraction,
+# ML-DSA integration, and Criterion benchmarks will arrive in later milestones
+# and will add their own dependencies here.
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+
+# Future milestone placeholders (do NOT uncomment yet):
+# criterion = { version = "0.5", features = ["html_reports"] }   # for benches/
+# rand = "0.8"                                                  # for PQ key generation
+# hex = "0.4"                                                   # for hash display (currently inline)
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+# Benchmark configuration (placeholder; benches/ is currently empty).
+# [[bench]]
+# name = "block_hash"
+# harness = false
