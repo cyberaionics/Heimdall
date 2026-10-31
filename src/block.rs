@@ -80,6 +80,43 @@ mod tests {
     fn genesis_block_has_zero_index_and_placeholder_prev_hash() {
         let g = Block::genesis(1_700_000_000);
         assert_eq!(g.index, 0);
-        
+        assert!(g.transactions.is_empty());
+        assert_eq!(g.previous_hash, "0".repeat(64), "genesis block must use the all-zero placeholder as previous_hash");
+        assert!(!g.hash.is_empty(), "genesis block hash must be computed");
+    }
+    #[test]
+    fn hash_is_deterministic_for_identical_content() {
+        let g1 = Block::genesis(1_700_000_000);
+        let g2 = Block::genesis(1_700_000_000);
+        assert_eq!(g1.hash, g2.hash, "two genesis blocks with identical content must have identical hashers");
+    }
+    #[test]
+    fn hash_changes_when_a_transaction_is_modified() {
+        let mut block = Block::genesis(1_700_000_000);
+        let original_hash = block.hash.clone();
+        block.transactions.push(sample_tx());
+        block.recompute_hash();
+        assert_ne!(block.hash, original.hash, "adding a transaction must change the block hash");
+    }
+    #[test]
+    fn hash_excludes_the_hash_field_itself() {
+        let mut block = Block::genesis(1_700_000_000);
+        let correct_hash = block.hash.clone();
+        block.hash = "BOGUS".to_string();
+        block.recompute_hash();
+        assert_eq!(block.hash, correct_hash, "the hash field must not be part of its own hash input");
+    }
+    #[test]
+    fn hash_changes_when_previous_hash_changes() {
+        let mut a = Block::new(1, 100, vec![], "aaa".to_string());
+        let mut b = Block::new(1, 100, vec![], "bbb".to_string());
+        b.recompute_hash();
+        assert_ne!(a.hash, b.hash, "different previous_hash values must produce different block hashes");
+    }
+    #[test]
+    fn hash_changes_when_timestamp_changes() {
+        let g1 = Block::genesis(1_700_000_000);
+        let g2 = Block::genesis(1_700_000_001);
+        assert_ne!(g1.hash, g2.hash, "different timestamps must produce different block hashes");
     }
 }
