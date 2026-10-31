@@ -124,6 +124,32 @@ mod tests {
     }
     #[test]
     fn tampered_block_hash_is_detected() {
-        
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        blkc.add_block(sample_txs());
+        let result = blkc.is_valid();
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.contains("Hash mismatch at index 1"));
+    }
+    #[test]
+    fn broken_link_is_detected() {
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        blkc.add_block(sample_txs());
+        blkc.add_block(sample_txs());
+        blkc.chain[2].previous_hash = "0".repeat(64);
+        let result = blkc.is_valid();
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.contains("broken link at index 2"), "broken chain link must be detected, got: {}", err);
+    }
+    #[test]
+    fn tampered_genesis_is_detected() {
+        let blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        let mut tampered - blkc.clone();
+        tampered.chain[0].timestamp = 1;
+        let result = tampered.is_valid();
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.contains("genesis block hash mismatch"));
     }
 }
