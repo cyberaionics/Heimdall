@@ -75,3 +75,55 @@ impl std::fmt::Display for Blockchain {
         Ok(())
     }
 }
+
+
+
+// Tests
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::transaction::Transaction;
+
+    fn sample_txs() -> Vec<Transaction> {
+        vec![Transaction::new("Alice".to_string(), "Bob".to_string(), 50), Transaction::new("Bob".to_string(), "Carol".to_string(), 25)]
+    }
+    #[test]
+    fn new_chain_has_genesis_only() {
+        let blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        assert_eq!(blkc.chain.len(), 1);
+        assert_eq!(blkc.chain[0].index, 0);
+        assert!(blkc.is_valid().is_ok());
+    }
+    #[test]
+    fn add_block_appends_a_valid_block() {
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        blkc.add_block(sample_txs());
+        assert_eq!(blkc.chain.len(), 2);
+        assert_eq!(blkc.chain[1].index, 1);
+        assert!(blkc.is_valid().is_ok());
+    }
+    #[test]
+    fn adding_multiple_blocks_keeps_chain_valid() {
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        for _ in 0..5 {
+            blkc.add_block(sample_txs());
+        }
+        assert_eq!(blkc.chain.len(), 6);
+        assert!(blkc.is_valid().is_ok());
+    }
+    #[test]
+    fn tampered_transaction_is_detected() {
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        blkc.add_block(sample_txs());
+        blkc.chain[1].transactions[0].amount = 999;
+        let result = blkc.is_valid();
+        assert!(result.is_err(), "tampered transaction must be detected by validation");
+        let err = result.unwrap_err();
+        assert!(err.contains("Hash Mismatch at index 1"), "error message must point at the tampered block, got: {}", err);
+    }
+    #[test]
+    fn tampered_block_hash_is_detected() {
+        
+    }
+}
