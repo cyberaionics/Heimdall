@@ -242,7 +242,22 @@ mod tests {
         let mut txs = Vec::with_capacity(n_txs);
         for i in 0..n_txs {
             let mut tx = Transaction::new("Alice".to_string(), "Bob".to_string(), i as u64);
-            wallet.sign_transaction(&mut tx)
+            wallet.sign_transaction(&mut tx);
+            txs.push(tx);
         }
+        let mut blkc = Blockchain::new_with_genesis_timestamp(1_700_000_000);
+        blkc.add_block(txs());
+        let _ = blkc.is_valid();
+        let start = Instant::now();
+        let result = blkc.is_valid();
+        let elapsed = start.elapsed();
+        assert!(result.is_ok(), "chain must be valid for a clean measurement");
+        let per_tx_ns = elapsed.as_nanos() as f64 / n_txs as f64;
+        println!("\n=== M2 measurement: signature verification cost ===\n\
+             transactions verified   : {}\n\
+             total validation time    : {:?}\n\
+             per-transaction (hash + sig verify): {:.0} ns  (~{:.2} us)\n\
+             note: single-threaded; debug build unless run with --release",
+            n_txs, elapsed, per_tx_ns, per_tx_ns / 1000.0);
     }
 }
